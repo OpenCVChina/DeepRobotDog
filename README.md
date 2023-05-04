@@ -24,6 +24,7 @@
         mkdir build && cd build
         cmake \
             -D CMAKE_BUILD_TYPE=RELEASE \
+            -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
             -D BUILD_opencv_python2=OFF \
             -D BUILD_opencv_python3=ON \
             -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
@@ -53,13 +54,14 @@
        文件复制并覆盖至`/usr/local/lib/python3.6/dist-packages/cv2/python-3.6/cv2.cpython-36m-aarch64-linux-gnu.so`
     3. 重新打开新的terminal，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0-dev`表明安装成功
     4. 注意事项如下
-
+        - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
         - `PYTHON3_LIBRARY`, `PYTHON3_INCLUDE_DIR`, `PYTHON3_EXECUTABLE` 参数设置，注意自己的python版本。一般默认安装路径如上脚本
         - `CUDA_ARCH_BIN` 参数设置需要上网搜索自己的GPU处理能力，Jetson-NX的GPU此处为`7.2`
         - `CUDA_TOOLKIT_ROOT_DIR` 为 [`cuda toolkit`](https://developer.nvidia.com/cuda-toolkit)
           工具的路径，此路径为系统预装，可以更新但不要随意更新，最新版本的不一定兼容你的GPU
         - `OPENCV_EXTRA_MODULES_PATH` 为 [`opencv_contrib`](https://github.com/opencv/opencv_contrib) 目录下 `modules`
           目录
+        - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
 
 2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码和其他"开箱即用"的模型算法，放到根目录即可。或者在下载本项目同时，
    **直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**
