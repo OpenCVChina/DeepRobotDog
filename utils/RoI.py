@@ -191,8 +191,10 @@ class RoIFaceDetYuNet:
 
         # Inference
         self.detector.setInputSize([image.shape[1], image.shape[0]])
-
-        results = self.detector.infer(image)
+        try:
+            results = self.detector.infer(image)
+        except:
+            results = None
         if results is not None:
             self.face = results[0] # only select one face
             self.face[2] += self.face[0]

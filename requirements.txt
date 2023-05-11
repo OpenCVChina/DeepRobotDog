@@ -1,3 +1,2 @@
-# It is best to build from https://github.com/opencv/opencv and https://github.com/opencv/opencv_contrib
 opencv-python>=4.7.0
 pyserial

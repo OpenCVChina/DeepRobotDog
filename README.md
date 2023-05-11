@@ -18,50 +18,56 @@
 1. 确保电脑的OpenCV版本满足`opencv-python>=4.7.0`，安装有`pyserial`
    模块。如果不想使用CUDA，直接运行`pip3 install -r requirements.txt`即可。最好使用带着CUDA编译的OpenCV，编译方法参考如下方法和脚本：
 
-    1. 下载 [OpenCV](https://github.com/opencv/opencv) 和 [OpenCV Contrib](https://github.com/opencv/opencv_contrib)
-       源码，置于同一目录下，在此目录执行如下脚本
-        ```shell
-        mkdir build && cd build
-        cmake \
-            -D CMAKE_BUILD_TYPE=RELEASE \
-            -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
-            -D BUILD_opencv_python2=OFF \
-            -D BUILD_opencv_python3=ON \
-            -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
-            -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
-            -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
-            -D INSTALL_PYTHON_EXAMPLES=OFF \
-            -D INSTALL_C_EXAMPLES=OFF \
-            -D BUILD_DOCS=OFF \
-            -D BUILD_PERF_TESTS=OFF \
-            -D BUILD_TESTS=OFF \
-            -D BUILD_EXAMPLES=OFF \
-            -D WITH_CUDA=ON \
-            -D WITH_CUDNN=ON \
-            -D OPENCV_DNN_CUDA=ON \
-            -D CUDA_FAST_MATH=ON \
-            -D ENABLE_NEON=ON \
-            -D OPENCV_DNN_CUDA=ON \
-            -D ENABLE_FAST_MATH=1 \
-            -D CUDA_ARCH_BIN=7.2 \
-            -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-10.2 \
-            -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules ../opencv
-        
-        make -j4
-        sudo make install
-        ```
-    2. 安装完毕后，将`build/lib/python3/cv2.cpython-36m-aarch64-linux-gnu.so`
-       文件复制并覆盖至`/usr/local/lib/python3.6/dist-packages/cv2/python-3.6/cv2.cpython-36m-aarch64-linux-gnu.so`
-    3. 重新打开新的terminal，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0-dev`表明安装成功
-    4. 注意事项如下
-        - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
-        - `PYTHON3_LIBRARY`, `PYTHON3_INCLUDE_DIR`, `PYTHON3_EXECUTABLE` 参数设置，注意自己的python版本。一般默认安装路径如上脚本
-        - `CUDA_ARCH_BIN` 参数设置需要上网搜索自己的GPU处理能力，Jetson-NX的GPU此处为`7.2`
-        - `CUDA_TOOLKIT_ROOT_DIR` 为 [`cuda toolkit`](https://developer.nvidia.com/cuda-toolkit)
-          工具的路径，此路径为系统预装，可以更新但不要随意更新，最新版本的不一定兼容你的GPU
-        - `OPENCV_EXTRA_MODULES_PATH` 为 [`opencv_contrib`](https://github.com/opencv/opencv_contrib) 目录下 `modules`
-          目录
-        - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
+   1. 下载 [OpenCV](https://github.com/opencv/opencv) 和 [OpenCV Contrib](https://github.com/opencv/opencv_contrib)
+      源码，置于同一目录下，在此目录执行如下脚本。（**编译前需要让机器狗连接网络，尽可能删除其他途径安装的OpenCV**）
+       ```shell
+       mkdir build && cd build
+       
+       cmake \
+           -D CMAKE_BUILD_TYPE=RELEASE \
+           -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
+           -D BUILD_opencv_python2=OFF \
+           -D BUILD_opencv_python3=ON \
+           -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
+           -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
+           -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
+           -D INSTALL_PYTHON_EXAMPLES=OFF \
+           -D INSTALL_C_EXAMPLES=OFF \
+           -D BUILD_DOCS=OFF \
+           -D BUILD_PERF_TESTS=OFF \
+           -D BUILD_TESTS=OFF \
+           -D BUILD_EXAMPLES=OFF \
+           -D WITH_CUDA=ON \
+           -D WITH_CUDNN=ON \
+           -D OPENCV_DNN_CUDA=ON \
+           -D CUDA_FAST_MATH=ON \
+           -D ENABLE_NEON=ON \
+           -D OPENCV_DNN_CUDA=ON \
+           -D ENABLE_FAST_MATH=1 \
+           -D CUDA_ARCH_BIN=7.2 \
+           -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-10.2 \
+           -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules ../opencv
+       ```
+       等待配置完成后，查看输出是否存在一行`NVIDIA CUDA:       YES(ver 10.2 CUFFT CUBLAS FAST_MATH)`。确保出现此行提示后再继续编译。
+       ```shell
+       make -j4
+       ```
+       编译时间很长，耐心等待......
+       ```shell
+       python3 -m pip install ./python_loader
+       ```
+       安装完成！
+   2. 重新打开新的terminal，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0-dev`表明安装成功
+   3. 注意事项如下
+       - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
+       - `PYTHON3_LIBRARY`, `PYTHON3_INCLUDE_DIR`, `PYTHON3_EXECUTABLE` 参数设置，注意自己的python版本。一般默认安装路径如上脚本
+       - `CUDA_ARCH_BIN` 参数设置需要上网搜索自己的GPU处理能力，Jetson-NX的GPU此处为`7.2`
+       - `CUDA_TOOLKIT_ROOT_DIR` 为 [`cuda toolkit`](https://developer.nvidia.com/cuda-toolkit)
+         工具的路径，此路径为系统预装，可以更新但不要随意更新，最新版本的不一定兼容你的GPU和驱动
+       - `OPENCV_EXTRA_MODULES_PATH` 为 [`opencv_contrib`](https://github.com/opencv/opencv_contrib) 目录下 `modules`
+         目录
+       - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
+       - 如果使用c++版本，再执行`make install`即可
 
 2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码和其他"开箱即用"的模型算法，放到根目录即可。或者在下载本项目同时，
    **直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**
@@ -152,7 +158,7 @@ python3 dashboard_recognition.py
 
 ### 危险标志识别和报警电话识别
 
-命令行运行下列代码，等待机器狗起立后，使用不同的场景即可，退出程序按键盘`q`或`Q`。用来分辨报警电话是否和危险标志匹配。仅支持以下标识和报警电话。。**仅提提供第一个样例，剩余代码赛后释放**
+命令行运行下列代码，等待机器狗起立后，使用不同的场景即可，退出程序按键盘`q`或`Q`。用来分辨报警电话是否和危险标志匹配。仅支持以下标识和报警电话。**仅提提供第一个样例，剩余代码赛后释放**
 
 ```shell
 python3 danger_alarm.py
