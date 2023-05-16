@@ -41,6 +41,7 @@
               -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
               -D BUILD_opencv_python2=OFF \
               -D BUILD_opencv_python3=ON \
+              -D -DBUILD_opencv_gapi=OFF \
               -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
               -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
               -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
@@ -72,8 +73,7 @@
        安装完成！
     5. 重新打开新的终端，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0`之类的表明安装成功
 
-2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码（直接下载得到的模型是不完整的，需要使用git lfs工具下载，具体请看opencv_zoo首页文档）和其他"开箱即用"的模型算法。把里面的内容放到`opencv_zoo`目录即可。或者在下载本项目同时，**直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**。
-
+2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码，或者直接前往[此百度网盘](https://pan.baidu.com/s/1UxBG8p4lC4df3TZHXmeoGw?pwd=z4ek)或[此谷歌网盘](https://drive.google.com/file/d/1x-dY3fAJjI_KlBbPSqpvTL3tvXfQfIBG/view?usp=sharing)下载此项目精简包（**推荐**），放到根目录即可。或者在下载本项目同时，**直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**
     ```shell
    # 需要从 https://git-lfs.github.com/ 安装 git-lfs
    # 主要是使用 --recursive 参数，下载 opencv_zoo 需要等待较长时间
