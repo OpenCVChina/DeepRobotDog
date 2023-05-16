@@ -5,7 +5,6 @@ import threading
 import os
 import psutil
 from utils.Controller import Controller
-from utils.ArmController import ArmController
 
 os.system(f'sudo clear')  # 引导用户给予root权限，避免忘记sudo运行此脚本
 
@@ -17,6 +16,7 @@ controller = Controller(server_address)
 
 has_arm = True
 try:
+    from utils.ArmController import ArmController
     arm_controller = ArmController("/dev/ttyUSB0")
     arm_controller.set_pose(1)
 except Exception as e:

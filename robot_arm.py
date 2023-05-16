@@ -52,7 +52,7 @@ if __name__ == '__main__':
     else:
         dog_cam = cv.VideoCapture("/dev/video0", cv.CAP_V4L2)
         arm_controller = ArmController("/dev/ttyUSB0")
-        arm_controller.set_pose(2)
+        arm_controller.set_pose(3)
 
 
         # start to exchange heartbeat pack
@@ -192,6 +192,9 @@ if __name__ == '__main__':
         # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
     # from Robot Dog
     else:
+        arm_controller.set_pose(2)
+        print("waiting 5s...")
+        time.sleep(5)
         arm_cam = cv.VideoCapture("/dev/video4", cv.CAP_V4L2)
         # cap.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
         # cap.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
