@@ -1,9 +1,11 @@
 # 使用文档
+
 此文档将介绍和提供使用云深处“绝影Lite2”机器狗的一些代码样例，和一些算法的实现思路。代码基本上只是用了OpenCV实现，对于OpenCV的使用有问题，也可以使用QQ扫描下方二维码，加入官方中文频道交流。
 
 <img src="doc_static/qq_channel.png" height="300">
 
 <!-- TOC -->
+
 * [使用文档](#使用文档)
     * [预处理](#预处理)
     * [手势控制](#手势控制)
@@ -11,78 +13,77 @@
     * [仪表盘识别](#仪表盘识别)
     * [危险标志识别和报警电话识别](#危险标志识别和报警电话识别)
     * [AR码定位和机械臂抓取](#ar码定位和机械臂抓取)
+
 <!-- TOC -->
 
 ### 预处理
 
-1. 确保电脑的OpenCV版本满足`opencv-python>=4.7.0`，安装有`pyserial`
-   模块。如果不想使用CUDA，直接运行`pip3 install -r requirements.txt`即可。最好使用带着CUDA编译的OpenCV，编译方法参考如下方法和脚本：
+1. 确保电脑的OpenCV版本满足`opencv-python>=4.7.0`，安装有`pyserial`模块。如果不想使用CUDA，直接运行`pip3 install -r requirements.txt`即可。最好使用带着CUDA编译的OpenCV，编译方法参考如下方法和脚本：
 
-   1. 下载 [OpenCV](https://github.com/opencv/opencv) 和 [OpenCV Contrib](https://github.com/opencv/opencv_contrib)
-      源码，置于同一目录下，在此目录执行如下脚本。（**编译前需要让机器狗连接网络，尽可能删除其他途径安装的OpenCV**）
-       ```shell
-       mkdir build && cd build
-       
-       cmake \
-           -D CMAKE_BUILD_TYPE=RELEASE \
-           -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
-           -D BUILD_opencv_python2=OFF \
-           -D BUILD_opencv_python3=ON \
-           -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
-           -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
-           -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
-           -D INSTALL_PYTHON_EXAMPLES=OFF \
-           -D INSTALL_C_EXAMPLES=OFF \
-           -D BUILD_DOCS=OFF \
-           -D BUILD_PERF_TESTS=OFF \
-           -D BUILD_TESTS=OFF \
-           -D BUILD_EXAMPLES=OFF \
-           -D WITH_CUDA=ON \
-           -D WITH_CUDNN=ON \
-           -D OPENCV_DNN_CUDA=ON \
-           -D CUDA_FAST_MATH=ON \
-           -D ENABLE_NEON=ON \
-           -D OPENCV_DNN_CUDA=ON \
-           -D ENABLE_FAST_MATH=1 \
-           -D CUDA_ARCH_BIN=7.2 \
-           -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-10.2 \
-           -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules ../opencv
-       ```
+    1. 下载 [OpenCV](https://github.com/opencv/opencv) 和 [OpenCV Contrib](https://github.com/opencv/opencv_contrib)源码，置于同一目录下
+    2. 解压这两个文件，然后改名为`opencv`和`opencv_contrib`
+    3. 注意事项如下
+        - `PYTHON3_LIBRARY`, `PYTHON3_INCLUDE_DIR`, `PYTHON3_EXECUTABLE` 参数设置，注意自己的python版本。一般默认安装路径如下脚本
+        - `CUDA_ARCH_BIN` 参数设置需要上网搜索自己的GPU处理能力，Jetson-NX的GPU此处为`7.2`，Jetson-Nano的为`5.3`
+        - `CUDA_TOOLKIT_ROOT_DIR` 为 [`cuda toolkit`](https://developer.nvidia.com/cuda-toolkit)工具的路径，此路径为系统预装，可以更新但不要随意更新，最新版本的不一定兼容你的GPU和驱动
+        - `OPENCV_EXTRA_MODULES_PATH` 为 [`opencv_contrib`](https://github.com/opencv/opencv_contrib) 目录下 `modules`目录
+        - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
+        - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
+        - 如果使用c++版本，再执行`make install`即可
+    4. 在`opencv`和`opencv_contrib`所在的目录下，用终端（terminal）执行如下脚本。（**编译前需要让机器狗连接网络，尽可能删除其他途径安装的OpenCV**）
+          ```shell
+          mkdir build && cd build
+          ```
+       注意当前是创建了一个`build`文件夹，然后进入到`build`文件夹目录了，下面的命令需要在build目录内部执行
+          ```shell
+          cmake \
+              -D CMAKE_BUILD_TYPE=RELEASE \
+              -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
+              -D BUILD_opencv_python2=OFF \
+              -D BUILD_opencv_python3=ON \
+              -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
+              -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
+              -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
+              -D INSTALL_PYTHON_EXAMPLES=OFF \
+              -D INSTALL_C_EXAMPLES=OFF \
+              -D BUILD_DOCS=OFF \
+              -D BUILD_PERF_TESTS=OFF \
+              -D BUILD_TESTS=OFF \
+              -D BUILD_EXAMPLES=OFF \
+              -D WITH_CUDA=ON \
+              -D WITH_CUDNN=ON \
+              -D OPENCV_DNN_CUDA=ON \
+              -D CUDA_FAST_MATH=ON \
+              -D ENABLE_NEON=ON \
+              -D OPENCV_DNN_CUDA=ON \
+              -D ENABLE_FAST_MATH=1 \
+              -D CUDA_ARCH_BIN=7.2 \
+              -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-10.2 \
+              -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules ../opencv
+          ```
        等待配置完成后，查看输出是否存在一行`NVIDIA CUDA:       YES(ver 10.2 CUFFT CUBLAS FAST_MATH)`。确保出现此行提示后再继续编译。
-       ```shell
-       make -j4
-       ```
+          ```shell
+          make -j4
+          ```
        编译时间很长，耐心等待......
-       ```shell
-       python3 -m pip install ./python_loader
-       ```
+          ```shell
+          python3 -m pip install ./python_loader
+          ```
        安装完成！
-   2. 重新打开新的terminal，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0-dev`表明安装成功
-   3. 注意事项如下
-       - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
-       - `PYTHON3_LIBRARY`, `PYTHON3_INCLUDE_DIR`, `PYTHON3_EXECUTABLE` 参数设置，注意自己的python版本。一般默认安装路径如上脚本
-       - `CUDA_ARCH_BIN` 参数设置需要上网搜索自己的GPU处理能力，Jetson-NX的GPU此处为`7.2`
-       - `CUDA_TOOLKIT_ROOT_DIR` 为 [`cuda toolkit`](https://developer.nvidia.com/cuda-toolkit)
-         工具的路径，此路径为系统预装，可以更新但不要随意更新，最新版本的不一定兼容你的GPU和驱动
-       - `OPENCV_EXTRA_MODULES_PATH` 为 [`opencv_contrib`](https://github.com/opencv/opencv_contrib) 目录下 `modules`
-         目录
-       - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
-       - 如果使用c++版本，再执行`make install`即可
+    5. 重新打开新的终端，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0`之类的表明安装成功
 
-2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码和其他"开箱即用"的模型算法，放到根目录即可。或者在下载本项目同时，
-   **直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**
+2. 前往[OpenCV Zoo 官方仓库](https://github.com/opencv/opencv_zoo)下载最新源码（直接下载得到的模型是不完整的，需要使用git lfs工具下载，具体请看opencv_zoo首页文档）和其他"开箱即用"的模型算法。把里面的内容放到`opencv_zoo`目录即可。或者在下载本项目同时，**直接使用下面脚本**命令自动拉取`opencv_zoo`的内容。**注意部分模型的引用是需要遵守相应license的，请不要删除license文件**。
 
     ```shell
    # 需要从 https://git-lfs.github.com/ 安装 git-lfs
    # 主要是使用 --recursive 参数，下载 opencv_zoo 需要等待较长时间
-   git clone --recursive https://github.com/WanliZhong/DeepRobotDog.git
+   git clone --recursive https://github.com/OpenCVChina/DeepRobotDog.git
    cd DeepRobotDog/opencv_zoo
    git lfs install
    git lfs pull
     ```
 
-3. 由于机器狗需要预热，站立校准，释放摄像头等预处理，每次电源重启机器狗后，需要先运行`warm_up.py`
-   文件，提前预热再运行各个Demo，以防出现冲突，代码执行有偏差等问题。运行一次后就不用再运行了，除非重新开机
+3. 由于机器狗需要预热，站立校准，释放摄像头等预处理，每次电源重启机器狗后，需要先运行`warm_up.py`文件，提前预热再运行各个Demo，以防出现冲突，代码执行有偏差等问题。运行一次后就不用再运行了，除非重新开机。
 
    ```shell
    sudo python3 warm_up.py
@@ -92,9 +93,7 @@
 
 4. 每个Demo执行前，需要修改代码中`Develop_Mode`，如果用电脑运行就设为`True`，机器狗运行就设为`False`
 
-5. 带有机械臂的Demo中，使用电脑运行需要将机械臂连接到电脑上再执行代码，macos或ubuntu的串口通常是`/dev/ttyUSB0`
-   ，windows的串口通常是`COM4`或`COM6`
-   。使用前需要修改串口为合适的值，再初始化机械臂的控制对象。如`ArmController("/dev/ttyUSB0")` 或 `ArmController("COM4")`
+5. 带有机械臂的Demo中，使用电脑运行需要将机械臂连接到电脑上再执行代码，macos或ubuntu的串口通常是`/dev/ttyUSB0`，windows的串口通常是`COM4`或`COM6`。使用前需要修改串口为合适的值，再初始化机械臂的控制对象。如`ArmController("/dev/ttyUSB0")` 或 `ArmController("COM4")`
 
 6. 在ubuntu系统中，使用带有机械臂功能的代码，需要`sudo`权限才能运行
 
@@ -178,12 +177,11 @@ python3 danger_alarm.py
 
 实现思路：
 
-1. 另开一个线程，使用[文本检测](https://github.com/opencv/opencv_zoo/tree/master/models/text_detection_db)和[文本识别](https://github.com/opencv/opencv_zoo/tree/master/models/text_recognition_crnn)
-   实时更新画面中报警电话的数字
+1. 另开一个线程，使用[文本检测](https://github.com/opencv/opencv_zoo/tree/master/models/text_detection_db)和[文本识别](https://github.com/opencv/opencv_zoo/tree/master/models/text_recognition_crnn)实时更新画面中报警电话的数字
 2. 主线程中用边缘检测和多边形近似轮廓，找到画面中最大的三角形区域
 3. 在区域中采样几个点，判断颜色为深色还是浅色，从而区分属于哪种危险标识
 4. 根据所得到的信息，判断是否对应符合
- 
+
 ### AR码定位和机械臂抓取
 
 [演示视频](https://pd.qq.com/s/e6pnowtod?shareSource=5)
@@ -211,6 +209,5 @@ python3 danger_alarm.py
 1. 使用OpenCV相机内参标定功能，标定摄像头参数
 2. 使用OpenCV中的aruco模块，采用aruco码进行定位，并估计出目标距离，偏移距离和角度等信息
 3. 实时调控机器狗到达目标附近，并切换机械臂摄像头视角。
-4. 摄像头采用hsv值过滤出橘黄色瓶子（其他物体也可以使用yolo之类的模型标定），并计算出距离黄色瓶子的距离 
+4. 摄像头采用hsv值过滤出橘黄色瓶子（其他物体也可以使用yolo之类的模型标定），并计算出距离黄色瓶子的距离
 5. 给机械臂目标物体的距离和高度，控制机械臂实现目标抓取
-
