@@ -41,7 +41,7 @@
               -D OPENCV_DOWNLOAD_MIRROR_ID=gitcode \
               -D BUILD_opencv_python2=OFF \
               -D BUILD_opencv_python3=ON \
-              -D -DBUILD_opencv_gapi=OFF \
+              -D BUILD_opencv_gapi=OFF \
               -D PYTHON3_LIBRARY=/usr/lib/aarch64-linux-gnu/libpython3.6m.so \
               -D PYTHON3_INCLUDE_DIR=/usr/include/python3.6m \
               -D PYTHON3_EXECUTABLE=/usr/bin/python3.6 \
