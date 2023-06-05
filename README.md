@@ -30,6 +30,27 @@
         - `OPENCV_DOWNLOAD_MIRROR_ID=gitcode` 为使用gitcode镜像下载第三方依赖，网络支持从github直接下载依赖的话，可以删掉此配置项
         - `make -j4` 表示使用4线程编译opencv，处理器支持更多线程的可以采用更大的数字。编译时间通常很久，一小时以上，需要耐心等待
         - 如果使用c++版本，再执行`make install`即可
+        - 如果你使用的是一个空的环境，比如全新的Jeston NX/Nano 开发板，请先安装OpenCV的各种依赖
+          ```shell
+          sudo apt-add-repository universe
+          sudo apt-get update
+          sudo apt-get install \
+              libglew-dev \
+              libtiff5-dev \
+              zlib1g-dev \
+              libjpeg-dev \
+              libpng12-dev \
+              libjasper-dev \
+              libavcodec-dev \
+              libavformat-dev \
+              libavutil-dev \
+              libpostproc-dev \
+              libswscale-dev \
+              libeigen3-dev \
+              libtbb-dev \
+              libgtk2.0-dev \
+              pkg-config
+          ```
     4. 在`opencv`和`opencv_contrib`所在的目录下，用终端（terminal）执行如下脚本。（**编译前需要让机器狗连接网络，尽可能删除其他途径安装的OpenCV**）
           ```shell
           mkdir build && cd build
@@ -69,6 +90,10 @@
        编译时间很长，耐心等待......
           ```shell
           python3 -m pip install ./python_loader
+          ```
+       如果上面这条命令失败了，尝试更新一下pip安装工具链
+          ```shell 
+          pip3 install --upgrade pip setuptools
           ```
        安装完成！
     5. 重新打开新的终端，执行` python3 -c "import cv2; print(cv2.__version__)"` 如果输出`4.7.0`之类的表明安装成功
